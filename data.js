@@ -45,7 +45,7 @@ const portfolioData = {
       number: "002",
       category: "Liminal Horror / Nostalgia",
       description: "A soundtrack for forgotten and misremembered Roblox spaces, built around nostalgia, isolation and old memories.",
-      image: "assets/images/projects/retrorooms.svg",
+      image: "assets/images/projects/retrorooms.png",
       status: "IN DEVELOPMENT",
       role: "Composer / Music Producer",
       platform: "Roblox",
