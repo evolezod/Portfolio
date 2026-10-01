@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Game soundtrack project by Evol Ezod / DOZE.">
+  <title>PROJECT — EVOL EZOD / DOZE</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header class="site-header">
+    <a class="logo" href="../index.html">
+      <span>EVOL EZOD</span><small>/ DOZE</small>
+    </a>
+    <nav class="nav">
+      <a href="../index.html#projects">PROJECTS</a>
+      <a href="../index.html#music">MUSIC</a>
+      <a href="../index.html#about">ABOUT</a>
+      <a href="../index.html#contact">CONTACT</a>
+    </nav>
+  </header>
+
+  <main class="project-page">
+    <a class="back" href="../index.html#projects">← BACK TO ARCHIVE</a>
+
+    <section class="project-hero">
+      <p class="eyebrow" id="project-number">PROJECT / 000</p>
+      <h1 id="project-title">PROJECT</h1>
+      <p class="project-description" id="project-description"></p>
+    </section>
+
+    <img class="project-cover" id="project-image" src="" alt="">
+
+    <section class="project-info">
+      <div class="info-box"><small>STATUS</small><span id="project-status"></span></div>
+      <div class="info-box"><small>ROLE</small><span id="project-role"></span></div>
+      <div class="info-box"><small>PLATFORM</small><span id="project-platform"></span></div>
+      <div class="info-box"><small>STYLE</small><span id="project-category"></span></div>
+    </section>
+
+    <section class="project-tracks">
+      <p class="eyebrow">SOUNDTRACK</p>
+      <h2>Selected Music</h2>
+      <div id="project-track-list" class="music-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>EVOL EZOD / DOZE</span>
+    <span>© <span id="year"></span></span>
+    <a href="../index.html">HOME ↑</a>
+  </footer>
+
+  <script src="../data.js"></script>
+  <script>
+    function escapeHTML(value = "") {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[char]));
+    }
+
+    const projectId = decodeURIComponent(location.pathname.split("/").pop().replace(".html", ""));
+    const project = portfolioData.projects.find(p => p.id === projectId);
+
+    if (!project) {
+      document.title = "Project not found — EVOL EZOD / DOZE";
+      document.querySelector("main").innerHTML = `
+        <a class="back" href="../index.html">← BACK HOME</a>
+        <section class="project-hero">
+          <p class="eyebrow">ERROR / 404</p>
+          <h1>Not found.</h1>
+          <p class="project-description">This project doesn't exist in the archive yet.</p>
+        </section>`;
+    } else {
+      document.title = `${project.title} — EVOL EZOD / DOZE`;
+      document.getElementById("project-number").textContent = `${project.number} / ${project.status}`;
+      document.getElementById("project-title").innerHTML = escapeHTML(project.title);
+      document.getElementById("project-description").textContent = project.description;
+      document.getElementById("project-image").src = `../${project.image}`;
+      document.getElementById("project-image").alt = `${project.title} project artwork`;
+      document.getElementById("project-status").textContent = project.status;
+      document.getElementById("project-role").textContent = project.role;
+      document.getElementById("project-platform").textContent = project.platform;
+      document.getElementById("project-category").textContent = project.category;
+
+      const tracks = portfolioData.tracks.filter(t => project.tracks.includes(t.id));
+      const list = document.getElementById("project-track-list");
+
+      if (!tracks.length) {
+        list.innerHTML = `<div class="empty">No public tracks have been added to this project yet.</div>`;
+      } else {
+        list.innerHTML = tracks.map((track, index) => `
+          <div class="track">
+            <span class="track-no">${String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <div class="track-title">${escapeHTML(track.title)}</div>
+              <div class="track-project">${escapeHTML(track.description)}</div>
+            </div>
+            <div class="track-actions">
+              <button class="play-button" type="button">▶</button>
+              <a class="download" href="../${track.audio}" download>MP3</a>
+              <audio class="audio-wrap" preload="none" src="../${track.audio}"></audio>
+            </div>
+          </div>
+        `).join("");
+
+        list.querySelectorAll(".play-button").forEach(button => {
+          button.addEventListener("click", () => {
+            const audio = button.parentElement.querySelector("audio");
+            const wasPlaying = !audio.paused;
+
+            list.querySelectorAll("audio").forEach(a => {
+              a.pause();
+              a.currentTime = 0;
+            });
+            list.querySelectorAll(".play-button").forEach(b => {
+              b.classList.remove("active");
+              b.textContent = "▶";
+            });
+
+            if (!wasPlaying) {
+              audio.play().catch(() => {});
+              button.classList.add("active");
+              button.textContent = "Ⅱ";
+              audio.addEventListener("ended", () => {
+                button.classList.remove("active");
+                button.textContent = "▶";
+              }, { once: true });
+            }
+          });
+        });
+      }
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const header = document.querySelector(".site-header");
+    window.addEventListener("scroll", () => header.classList.toggle("scrolled", window.scrollY > 30));
+  </script>
+</body>
+</html>
